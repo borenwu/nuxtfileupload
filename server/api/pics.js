@@ -47,19 +47,21 @@ router.post('/pics/upload', function (req, res, next) {
             // 上传到七牛
             let dirname = req.body.dirname
             let filename = req.body.filename
-            console.log(req.file.buffer)
 
-            client.uploadFile(req.file.buffer.toString(), {key: `/${dirname}/${filename}`}, function (err, result) {
-                if (err) {
-                    console.log('上传失败')
-                    console.log(err)
-                } else {
-                    let store_url = result.url;
-                    console.log('result: %s',store_url)
-                }
-                // 上传之后删除本地文件
-                //fs.unlinkSync(filePath);
-            });
+            let fbuffer = req.file.buffer
+            console.log(fbuffer.length)
+            console.log(fbuffer.indexOf('/0'))
+            // client.uploadFile(fbuffer.toString(0,fbuffer.length-1), {key: `/${dirname}/${filename}`}, function (err, result) {
+            //     if (err) {
+            //         console.log('上传失败')
+            //         console.log(err)
+            //     } else {
+            //         let store_url = result.url;
+            //         console.log('result: %s',store_url)
+            //     }
+            //     // 上传之后删除本地文件
+            //     //fs.unlinkSync(filePath);
+            // });
 
             res.json({
                 msg:"1"
