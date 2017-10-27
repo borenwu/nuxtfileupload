@@ -1,6 +1,9 @@
 <template>
     <div class="example-simple">
         <h1 id="example-title" class="example-title">Simple Example</h1>
+
+        <input type="text" v-model="dirname" >
+
         <div class="upload">
             <ul>
                 <li v-for="(file, index) in files" :key="file.id">
@@ -20,19 +23,21 @@
                         extensions="gif,jpg,jpeg,png,webp"
                         accept="image/png,image/gif,image/jpeg,image/webp"
                         :multiple="true"
+                        :directory="false"
                         :size="1024 * 1024 * 10"
                         v-model="files"
                         @input-filter="inputFilter"
                         @input-file="inputFile"
                         ref="upload">
-                    <i class="fa fa-plus"></i>
+                    <!--<i class="fa fa-plus"></i>-->
                     Select files
                 </file-upload>
-                <button type="button" @click="btnClick" class="btn btn-success" v-if="!$refs.upload || !$refs.upload.active" @click.prevent="$refs.upload.active = true">
+                <button type="button"  class="btn btn-success"
+                        v-if="!$refs.upload || !$refs.upload.active" @click.prevent="$refs.upload.active = true">
                     <i class="fa fa-arrow-up" aria-hidden="true"></i>
                     Start Upload
                 </button>
-                <button type="button" class="btn btn-danger"  v-else @click.prevent="$refs.upload.active = false">
+                <button type="button" class="btn btn-danger" v-else @click.prevent="$refs.upload.active = false">
                     <i class="fa fa-stop" aria-hidden="true"></i>
                     Stop Upload
                 </button>
@@ -49,19 +54,20 @@
 
 <script>
     import FileUpload from 'vue-upload-component'
+    import axios from '~/plugins/axios'
+
     export default {
         components: {
             FileUpload,
         },
         data() {
             return {
+                dirname:'dirname',
                 files: [],
             }
         },
         methods: {
-            btnClick(){
-                console.log('btn start click')
-            },
+
             inputFilter(newFile, oldFile, prevent) {
                 if (newFile && !oldFile) {
                     // Before adding a file
@@ -78,18 +84,24 @@
                     }
                 }
             },
+
             inputFile(newFile, oldFile) {
                 if (newFile && !oldFile) {
                     // add
-                    console.log('add', newFile)
+//                    console.log('add', newFile)
+                    newFile.data = {
+                        dirname:this.dirname,
+                        filename:newFile.name
+                    }
                 }
                 if (newFile && oldFile) {
                     // update
-                    console.log('update', newFile)
+//                    console.log('update', newFile)
+
                 }
                 if (!newFile && oldFile) {
                     // remove
-                    console.log('remove', oldFile)
+//                    console.log('remove', oldFile)
                 }
             }
         }
