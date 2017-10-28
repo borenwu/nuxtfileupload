@@ -3,7 +3,7 @@ const multer = require('multer');
 const bytes = require('bytes');
 const qn = require('qn');
 const fs = require('fs');
-const rd = require('rd');
+
 
 const router = Router()
 let bucket = 'ntboao'
