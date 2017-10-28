@@ -74,27 +74,6 @@ router.post('/pics/upload', upload.single('file'), function (req, res, next) {
         }
 
     });
-
-    // // 异步遍历目录下的所有文件
-    // rd.eachSync(uploadFolder, function (f, s) {
-    //     if (s.size > 0) {
-    //         client.uploadFile(f, {key: `/${dirname}/${filename}`}, function (err, result) {
-    //             if (err) {
-    //                 console.log('上传失败')
-    //                 console.log(err)
-    //             } else {
-    //                 let store_url = result.url;
-    //                 console.log('result: %s',store_url)
-    //                 // 上传之后删除本地文件
-    //                 // fs.unlinkSync(f);
-    //             }
-    //
-    //         });
-    //     }
-    //     // 每找到一个文件都会调用一次此函数
-    //     // 参数s是通过 fs.stat() 获取到的文件属性值
-    // });
-
     res.send({ret_code: '0'});
 });
 
