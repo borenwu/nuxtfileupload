@@ -19,7 +19,7 @@
                 <file-upload
                         name="file"
                         class="btn btn-primary"
-                        post-action="/api/pics/upload"
+                        post-action="/api/posts/"
                         extensions="gif,jpg,jpeg,png,webp"
                         accept="image/png,image/gif,image/jpeg,image/webp"
                         :multiple="true"

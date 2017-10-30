@@ -3,6 +3,7 @@ const multer = require('multer');
 const bytes = require('bytes');
 const qn = require('qn');
 const fs = require('fs');
+const Post = require('../models/postModel')
 
 
 const router = Router()
@@ -50,30 +51,54 @@ const client = qn.create({
     origin: 'http://oy98650kl.bkt.clouddn.com'
 })
 
+//========================================================================================================//
 
-router.post('/pics/upload', upload.single('file'), function (req, res, next) {
+router.get('/posts', (req, res) => {
+    Post.find((err, posts) => {
+        if (err)
+            console.log(handleError(err));
+        res.json(posts);
+    });
+});
+
+let images = []
+router.post('/posts', upload.single('file'), function (req, res, next) {
     let file = req.file;
     let dirname = req.body.dirname
-    console.log('dirname: %s', dirname)
     let filename = file.originalname
 
-    console.log('文件类型：%s', file.mimetype);
-    console.log('原始文件名：%s', file.originalname);
-    console.log('文件大小：%s', file.size);
-    console.log('文件保存路径：%s', file.path);
+
+    // create a new post
+    let newPost = Post({
+        title: dirname,
+        date:new Date()
+    });
+
+
+    // console.log('文件类型：%s', file.mimetype);
+    // console.log('原始文件名：%s', file.originalname);
+    // console.log('文件大小：%s', file.size);
+    // console.log('文件保存路径：%s', file.path);
 
     client.uploadFile(file.path, {key: `/${dirname}/${filename}`}, function (err, result) {
         if (err) {
             console.log('上传失败')
             console.log(err)
         } else {
-            let store_url = result.url;
-            console.log('result: %s', store_url)
+            let store_url = {url:result.url};
+
+
+            images.push(store_url)
+            // save the post
+
+
+            // console.log('result: %s', store_url)
             // 上传之后删除本地文件
             fs.unlinkSync(file.path);
         }
 
     });
+    console.log('images: %s',images)
     res.send({ret_code: '0'});
 });
 

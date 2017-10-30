@@ -1,11 +1,14 @@
 import express from 'express'
 import { Nuxt, Builder } from 'nuxt'
+const mongoose = require('mongoose')
 
 import api from './api'
 
 const app = express()
 const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
+
+mongoose.connect('mongodb://localhost:27017/filetest');
 
 app.set('port', port)
 
