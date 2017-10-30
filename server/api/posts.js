@@ -62,17 +62,18 @@ router.get('/posts', (req, res) => {
 });
 
 let images = []
-router.post('/posts', upload.single('file'), function (req, res, next) {
-    let file = req.file;
-    let dirname = req.body.dirname
-    let filename = file.originalname
+router.post('/posts', upload.array('file'), function (req, res, next) {
+    let files = req.files;
+    // let dirname = req.body.dirname
+    // let filename = file.originalname
+    console.log(files)
 
 
     // create a new post
-    let newPost = Post({
-        title: dirname,
-        date:new Date()
-    });
+    // let newPost = Post({
+    //     title: dirname,
+    //     date:new Date()
+    // });
 
 
     // console.log('文件类型：%s', file.mimetype);
@@ -80,26 +81,26 @@ router.post('/posts', upload.single('file'), function (req, res, next) {
     // console.log('文件大小：%s', file.size);
     // console.log('文件保存路径：%s', file.path);
 
-    client.uploadFile(file.path, {key: `/${dirname}/${filename}`}, function (err, result) {
-        if (err) {
-            console.log('上传失败')
-            console.log(err)
-        } else {
-            let store_url = {url:result.url};
-
-
-            images.push(store_url)
-            // save the post
-
-
-            // console.log('result: %s', store_url)
-            // 上传之后删除本地文件
-            fs.unlinkSync(file.path);
-        }
-
-    });
-    console.log('images: %s',images)
-    res.send({ret_code: '0'});
+    // client.uploadFile(file.path, {key: `/${dirname}/${filename}`}, function (err, result) {
+    //     if (err) {
+    //         console.log('上传失败')
+    //         console.log(err)
+    //     } else {
+    //         let store_url = {url:result.url};
+    //
+    //
+    //         images.push(store_url)
+    //         // save the post
+    //
+    //
+    //         // console.log('result: %s', store_url)
+    //         // 上传之后删除本地文件
+    //         fs.unlinkSync(file.path);
+    //     }
+    //
+    // });
+    // console.log('images: %s',images)
+    // res.send({ret_code: '0'});
 });
 
 export default router
