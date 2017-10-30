@@ -1,5 +1,6 @@
 import {Router} from 'express'
 const multer = require('multer');
+const multiparty = require('multiparty');
 const bytes = require('bytes');
 const qn = require('qn');
 const fs = require('fs');
@@ -25,18 +26,18 @@ let uploadFolder = './tmp/my-uploads';
 createFolder(uploadFolder);
 
 // 通过 filename 属性定制
-let storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadFolder);    // 保存的路径，备注：需要自己创建
-    },
-    filename: function (req, file, cb) {
-        // 将保存文件名设置为 字段名 + 时间戳，比如 logo-1478521468943
-        cb(null, file.originalname);
-    }
-});
+// let storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         cb(null, uploadFolder);    // 保存的路径，备注：需要自己创建
+//     },
+//     filename: function (req, file, cb) {
+//         // 将保存文件名设置为 字段名 + 时间戳，比如 logo-1478521468943
+//         cb(null, file.originalname);
+//     }
+// });
 
 // 通过 storage 选项来对 上传行为 进行定制化
-const upload = multer({storage: storage})
+// const upload = multer({storage: storage})
 
 
 // 七牛云配置
@@ -62,12 +63,13 @@ router.get('/posts', (req, res) => {
 });
 
 let images = []
-router.post('/posts', upload.array('file'), function (req, res, next) {
-    let files = req.files;
+router.post('/posts', function (req, res, next) {
+    // upload.array('file')
+    // let files = req.files;
     // let dirname = req.body.dirname
     // let filename = file.originalname
-    console.log(files)
-
+    // console.log(files)
+    // next();
 
     // create a new post
     // let newPost = Post({
@@ -101,6 +103,30 @@ router.post('/posts', upload.array('file'), function (req, res, next) {
     // });
     // console.log('images: %s',images)
     // res.send({ret_code: '0'});
+
+    //生成multiparty对象，并配置上传目标路径
+    var form = new multiparty.Form({uploadDir: uploadFolder});
+    //上传完成后处理
+    form.parse(req, function(err, fields, files){
+        console.log(files.file);
+        var inputFile = files.file[0];
+        // console.log(inputFile);
+        var uploadedPath = inputFile.path;
+        console.log('uploadedPath:'+uploadedPath)
+        var dstPath = uploadFolder +'/'+ inputFile.originalFilename;
+        console.log('dstPath:'+dstPath);
+        fs.rename(uploadedPath, dstPath, function(err) {
+            if(err){
+                console.log('rename error: ' + err);
+            } else {
+                console.log('rename ok');
+            }
+        });
+        files.file.path = dstPath;
+        var data = files;
+        
+        res.send(data);
+    });
 });
 
 export default router

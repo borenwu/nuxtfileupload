@@ -1,6 +1,7 @@
 import express from 'express'
 import { Nuxt, Builder } from 'nuxt'
 const mongoose = require('mongoose')
+// const multer = require("multer");
 
 import api from './api'
 
@@ -10,6 +11,7 @@ const port = process.env.PORT || 3000
 
 mongoose.connect('mongodb://localhost:27017/filetest');
 
+// app.use(multer());
 app.set('port', port)
 
 // Import API Routes
