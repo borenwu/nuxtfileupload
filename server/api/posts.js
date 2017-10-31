@@ -1,6 +1,5 @@
 import {Router} from 'express'
 const multer = require('multer');
-const multiparty = require('multiparty');
 const bytes = require('bytes');
 const qn = require('qn');
 const fs = require('fs');
@@ -26,18 +25,18 @@ let uploadFolder = './tmp/my-uploads';
 createFolder(uploadFolder);
 
 // 通过 filename 属性定制
-// let storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, uploadFolder);    // 保存的路径，备注：需要自己创建
-//     },
-//     filename: function (req, file, cb) {
-//         // 将保存文件名设置为 字段名 + 时间戳，比如 logo-1478521468943
-//         cb(null, file.originalname);
-//     }
-// });
+let storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadFolder);    // 保存的路径，备注：需要自己创建
+    },
+    filename: function (req, file, cb) {
+        // 将保存文件名设置为 字段名 + 时间戳，比如 logo-1478521468943
+        cb(null, file.originalname);
+    }
+});
 
 // 通过 storage 选项来对 上传行为 进行定制化
-// const upload = multer({storage: storage})
+const upload = multer({storage: storage})
 
 
 // 七牛云配置
@@ -56,77 +55,51 @@ const client = qn.create({
 
 router.get('/posts', (req, res) => {
     Post.find((err, posts) => {
-        if (err)
+        if (err){
             console.log(handleError(err));
+        }
         res.json(posts);
     });
 });
 
-let images = []
-router.post('/posts', function (req, res, next) {
-    // upload.array('file')
-    // let files = req.files;
-    // let dirname = req.body.dirname
-    // let filename = file.originalname
-    // console.log(files)
-    // next();
+router.post('/posts', upload.single('file'), function (req, res, next) {
 
-    // create a new post
-    // let newPost = Post({
-    //     title: dirname,
-    //     date:new Date()
-    // });
+    let file = req.file;
+    let dirname = req.body.dirname
+    let filename = file.originalname
 
+    client.uploadFile(file.path, {key: `/${dirname}/${filename}`}, function (err, result) {
+        if (err) {
+            console.log('上传失败')
+            console.log(err)
+        } else {
+            let store_url = {url: result.url};
 
-    // console.log('文件类型：%s', file.mimetype);
-    // console.log('原始文件名：%s', file.originalname);
-    // console.log('文件大小：%s', file.size);
-    // console.log('文件保存路径：%s', file.path);
+            Post.findOne({title: dirname}, function (err, post) {
+                if (post == null) {
+                    let newPost = Post({
+                        title: dirname,
+                        date: new Date(),
+                        images: [store_url]
+                    });
+                    newPost.save(function (err) {
+                        if (err) throw err;
+                    });
+                }
+                else{
+                    post.images.push(store_url)
+                    post.save(function (err) {
+                        if (err) throw err;
+                    });
+                }
+            })
+            // 上传之后删除本地文件
+            fs.unlinkSync(file.path);
+        }
 
-    // client.uploadFile(file.path, {key: `/${dirname}/${filename}`}, function (err, result) {
-    //     if (err) {
-    //         console.log('上传失败')
-    //         console.log(err)
-    //     } else {
-    //         let store_url = {url:result.url};
-    //
-    //
-    //         images.push(store_url)
-    //         // save the post
-    //
-    //
-    //         // console.log('result: %s', store_url)
-    //         // 上传之后删除本地文件
-    //         fs.unlinkSync(file.path);
-    //     }
-    //
-    // });
-    // console.log('images: %s',images)
-    // res.send({ret_code: '0'});
-
-    //生成multiparty对象，并配置上传目标路径
-    var form = new multiparty.Form({uploadDir: uploadFolder});
-    //上传完成后处理
-    form.parse(req, function(err, fields, files){
-        console.log(files.file);
-        var inputFile = files.file[0];
-        // console.log(inputFile);
-        var uploadedPath = inputFile.path;
-        console.log('uploadedPath:'+uploadedPath)
-        var dstPath = uploadFolder +'/'+ inputFile.originalFilename;
-        console.log('dstPath:'+dstPath);
-        fs.rename(uploadedPath, dstPath, function(err) {
-            if(err){
-                console.log('rename error: ' + err);
-            } else {
-                console.log('rename ok');
-            }
-        });
-        files.file.path = dstPath;
-        var data = files;
-        
-        res.send(data);
     });
+    res.send({ret_code: '0'});
+
 });
 
 export default router

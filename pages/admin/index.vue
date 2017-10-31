@@ -2,7 +2,7 @@
     <div class="example-simple">
         <h1 id="example-title" class="example-title">Simple Example</h1>
 
-        <input type="text" v-model="dirname" >
+        <input type="text" class="mdl-textfield__input" v-model="dirname" >
 
         <div class="upload">
             <ul>
@@ -15,10 +15,10 @@
                     <span v-else></span>
                 </li>
             </ul>
-            <div class="example-btn">
+            <div>
                 <file-upload
                         name="file"
-                        class="btn btn-primary"
+                        class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
                         post-action="/api/posts/"
                         extensions="gif,jpg,jpeg,png,webp"
                         accept="image/png,image/gif,image/jpeg,image/webp"
@@ -32,12 +32,12 @@
                     <!--<i class="fa fa-plus"></i>-->
                     Select files
                 </file-upload>
-                <button type="button"  class="btn btn-success"
+                <button type="button"  class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
                         v-if="!$refs.upload || !$refs.upload.active" @click.prevent="$refs.upload.active = true">
                     <i class="fa fa-arrow-up" aria-hidden="true"></i>
                     Start Upload
                 </button>
-                <button type="button" class="btn btn-danger" v-else @click.prevent="$refs.upload.active = false">
+                <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" v-else @click.prevent="$refs.upload.active = false">
                     <i class="fa fa-stop" aria-hidden="true"></i>
                     Stop Upload
                 </button>
@@ -88,7 +88,7 @@
             inputFile(newFile, oldFile) {
                 if (newFile && !oldFile) {
                     // add
-//                    console.log('add', newFile)
+                    console.log('add', newFile)
                     newFile.data = {
                         dirname:this.dirname,
                         filename:newFile.name
